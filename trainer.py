@@ -154,8 +154,8 @@ model = Model(input_layer, x) ## model: wav -> features
 model.summary()
 
 stft_input = Input(shape=(1, total_samp, 1))
-stfted = Lambda(custom_STFT_layer)(stft_input)
-stft_model = Model(stft_input, stfted)
+stft_output = Lambda(custom_STFT_layer)(stft_input)
+stft_model = Model(input=stft_input, output=stft_output)
 
 print('Model loaded.')
 
