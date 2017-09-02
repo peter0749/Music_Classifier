@@ -98,14 +98,17 @@ def deprocess_wav(x):
 base_wav_data = preprocess_wav(base_wav_path, offset_base, total_samp, True)
 style_reference_wav_data = preprocess_wav(style_reference_wav_path, offset_ref, total_samp, True)
 
-base_wav = K.variable(base_wav_data)
-style_reference_wav = K.variable(style_reference_wav_data)
+base_wav = K.variable(base_wav_data.copy())
+style_reference_wav = K.variable(style_reference_wav_data.copy())
 combination_wav = K.placeholder((1, total_samp, 1))
 
 input_tensor = K.concatenate([base_wav,
                               style_reference_wav,
                               combination_wav], axis=0)
-input_layer = Input(tensor=input_tensor, shape=(total_samp, 1))
+if not K.is_keras_tensor(input_tensor):
+    input_layer = Input(tensor=input_tensor, shape=(total_samp, 1))
+else:
+    input_layer = input_tensor
 
 def custom_STFT_layer(x):
     ## input_shape: (batch_size, timestep, channel)
@@ -297,8 +300,8 @@ def plot_spectrogram(x, fname):
 #x = np.random.randn(1, total_samp, 1) * 1e-3
 x = preprocess_wav(base_wav_path, offset_base, total_samp, True)
 
-plot_spectrogram(base_wav_data, 'base.png')
-plot_spectrogram(style_reference_wav_data, 'style.png')
+plot_spectrogram(base_wav_data.copy(), 'base.png')
+plot_spectrogram(style_reference_wav_data.copy(), 'style.png')
 
 for i in xrange(iterations):
     print('Start of iteration', i)
@@ -309,10 +312,10 @@ for i in xrange(iterations):
     # save current generated image
     wav = deprocess_wav(x.copy())
     fname = result_prefix + '_at_iteration_%d.wav' % i
-    plot_spectrogram(wav, fname+'.png')
+    plot_spectrogram(wav.copy(), fname+'.png')
     scipy.io.wavfile.write(fname, rate, wav)
     end_time = time.time()
     print('wav saved as', fname)
     print('Iteration %d completed in %ds' % (i, end_time - start_time))
 
-
+model.save('model.h5')
