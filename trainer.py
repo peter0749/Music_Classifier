@@ -290,7 +290,6 @@ def plot_spectrogram(x, fname):
     x = np.transpose(x, (1, 0))
     plt.ylabel('Frequency [HZ]')
     plt.xlabel('Time [not scaled]')
-    plt.gca().invert_yaxis()
     plt.imshow(x)
     plt.savefig(str(fname))
 
