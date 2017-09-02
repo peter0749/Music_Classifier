@@ -153,7 +153,7 @@ x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
 model = Model(input_layer, x) ## model: wav -> features
 model.summary()
 
-stft_input = Input(shape=(1, total_samp, 1))
+stft_input = Input(shape=(total_samp, 1))
 stft_output = Lambda(custom_STFT_layer)(stft_input)
 stft_model = Model(input=stft_input, output=stft_output)
 
