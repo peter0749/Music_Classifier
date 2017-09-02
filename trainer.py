@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ### 參考 keras/example 裡的 neural_style_transfer.py
 ### 詳細可到這裡觀看他們的原始碼：
 ### https://github.com/fchollet/keras/blob/master/examples/neural_style_transfer.py
