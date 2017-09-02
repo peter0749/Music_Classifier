@@ -94,8 +94,11 @@ def preprocess_wav(wavfile, offset, sample_n, normalize=False):
 def deprocess_wav(x):
     return x.flatten().clip(-1., 1.)
 
-base_wav = K.variable(preprocess_wav(base_wav_path, offset_base, total_samp, True))
-style_reference_wav = K.variable(preprocess_wav(style_reference_wav_path, offset_ref, total_samp, True))
+base_wav_data = preprocess_wav(base_wav_path, offset_base, total_samp, True)
+style_reference_wav_data = preprocess_wav(style_reference_wav_path, offset_ref, total_samp, True)
+
+base_wav = K.variable(base_wav_data)
+style_reference_wav = K.variable(style_reference_wav_data)
 combination_wav = K.placeholder((1, total_samp, 1))
 
 input_tensor = K.concatenate([base_wav,
@@ -289,6 +292,9 @@ def plot_spectrogram(x, fname):
 # run scipy-based optimization (L-BFGS) over the pixels of the generated image
 # so as to minimize the neural style loss
 x = np.random.randn(1, total_samp, 1) * 1e-3
+
+plot_spectrogram(base_wav_data, 'base.png')
+plot_spectrogram(style_reference_wav_data, 'style.png')
 
 for i in xrange(iterations):
     print('Start of iteration', i)

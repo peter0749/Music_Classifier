@@ -1,0 +1,13 @@
+*.wav
+*.png
+*.xz
+*.tar
+*.tar.xz
+*.gz
+*.log
+*.out
+*.csv
+*.h5
+*.h5fs
+*.hdf5
+
