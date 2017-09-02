@@ -73,7 +73,7 @@ segment_n = 64
 FFT_n = 2048
 FFT_t = FFT_n/8
 total_samp = segment_n*FFT_n
-img_nrows, img_ncols = 505, 505
+img_nrows, img_ncols = 505, 768
 
 def preprocess_wav(wavfile, offset, sample_n, normalize=False):
     input_rate, wavData = scipy.io.wavfile.read(str(wavfile))
