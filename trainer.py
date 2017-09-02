@@ -311,7 +311,7 @@ for i in xrange(iterations):
     plot_spectrogram(wav, fname+'.png')
     scipy.io.wavfile.write(fname, rate, wav)
     end_time = time.time()
-    print('Image saved as', fname)
+    print('wav saved as', fname)
     print('Iteration %d completed in %ds' % (i, end_time - start_time))
 
 
