@@ -294,7 +294,8 @@ def plot_spectrogram(x, fname):
 
 # run scipy-based optimization (L-BFGS) over the pixels of the generated image
 # so as to minimize the neural style loss
-x = np.random.randn(1, total_samp, 1) * 1e-3
+#x = np.random.randn(1, total_samp, 1) * 1e-3
+x = preprocess_wav(base_wav_path, offset_base, total_samp, True)
 
 plot_spectrogram(base_wav_data, 'base.png')
 plot_spectrogram(style_reference_wav_data, 'style.png')
