@@ -294,7 +294,7 @@ def plot_spectrogram(x, fname):
 
 # run scipy-based optimization (L-BFGS) over the pixels of the generated image
 # so as to minimize the neural style loss
-x = np.random.randn(1, total_samp, 1) * 1e-3
+x = np.random.randn(1, total_samp, 1) * 1e-6 ## generate initial wav sound
 #x = preprocess_wav(base_wav_path, offset_base, total_samp, True)
 
 plot_spectrogram(base_wav_data.copy(), 'base.png')
@@ -304,7 +304,7 @@ for i in xrange(iterations):
     print('Start of iteration', i)
     start_time = time.time()
     x, min_val, info = fmin_l_bfgs_b(evaluator.loss, x.flatten(),
-                                     fprime=evaluator.grads, maxfun=128)
+                                     fprime=evaluator.grads, maxfun=32)
     print('Current loss value:', min_val)
     # save current generated image
     wav = deprocess_wav(x.copy())
