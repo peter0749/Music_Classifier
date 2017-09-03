@@ -163,7 +163,8 @@ def content_loss(base, combination):
 
 # combine these loss functions into a single scalar
 loss = K.variable(0.)
-layer_features = outputs_dict['block3_conv4']
+#layer_features = outputs_dict['block3_conv4']
+layer_features = outputs_dict['block3_conv2']
 base_wav_features = layer_features[0, :, :, :]
 combination_features = layer_features[2, :, :, :]
 loss += content_weight * content_loss(base_wav_features,
