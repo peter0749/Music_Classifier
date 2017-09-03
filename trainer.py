@@ -306,7 +306,7 @@ for i in xrange(iterations):
     print('Start of iteration', i)
     start_time = time.time()
     x, min_val, info = fmin_l_bfgs_b(evaluator.loss, x.flatten(),
-                                     fprime=evaluator.grads, maxfun=20)
+                                     fprime=evaluator.grads, maxfun=128)
     print('Current loss value:', min_val)
     # save current generated image
     wav = deprocess_wav(x.copy())
