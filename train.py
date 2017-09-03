@@ -40,7 +40,7 @@ parser.add_argument('--iter', type=int, default=10, required=False,
                     help='Number of iterations to run.')
 parser.add_argument('--ar', type=int, default=11025, required=False,
                     help='Sample rate.')
-parser.add_argument('--lr', type=float, default=0.01, required=False,
+parser.add_argument('--lr', type=float, default=0.0001, required=False,
                     help='Learning rate.')
 parser.add_argument('--batch_size', type=int, default=4, required=False,
                     help='Batch size.')
@@ -113,7 +113,7 @@ model = conv_net_sound.conv_net(input_tensor = None,
 if (os.path.isfile('./top_weight.h5')):
     model.load_weights('./top_weight.h5')
 model.summary()
-optimizer = SGD(lr=0.0001, momentum=0.9)
+optimizer = SGD(lr=lr, momentum=0.9)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 checkPoint = ModelCheckpoint(filepath="./top_weight.h5", verbose=1, save_best_only=True, monitor='loss', mode='min', save_weights_only=True, period=50)
 model.fit_generator(generator(), steps_per_epoch=1, epochs=iterations, callbacks=[checkPoint])
