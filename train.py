@@ -3,6 +3,8 @@
 ### 詳細可到這裡觀看他們的原始碼：
 ### https://github.com/fchollet/keras/blob/master/examples/neural_style_transfer.py
 from __future__ import print_function
+import os
+import os.path
 import numpy as np
 import keras
 import tensorflow as tf
@@ -108,6 +110,8 @@ model = vgg19_sound.vgg19(input_tensor = None,
                           img_nrows = img_nrows, img_ncols = img_ncols,
                           class_n = 2
                          )
+if (os.path.isfile('./top_weight.h5')):
+    model.load_weights('./top_weight.h5')
 model.summary()
 optimizer = SGD(lr=0.0001, momentum=0.9)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
