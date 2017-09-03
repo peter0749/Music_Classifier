@@ -32,7 +32,7 @@ import scipy.io.wavfile
 import matplotlib
 matplotlib.use('Agg') ## headless
 import matplotlib.pyplot as plt
-import vgg19_sound
+import conv_net_sound
 from utils import preprocess_wav
 from utils import deprocess_wav
 
@@ -108,17 +108,17 @@ combination_wav = K.placeholder((1, total_samp, 1))
 input_tensor = K.concatenate([base_wav,
                               style_reference_wav,
                               combination_wav], axis=0)
-model = vgg19_sound.vgg19(input_tensor = input_tensor,
+model = conv_net_sound.conv_net(input_tensor = input_tensor,
                           segment_n = segment_n,
                           FFT_n = FFT_n,
                           FFT_t = FFT_t,
                           img_nrows = img_nrows, img_ncols = img_ncols,
                           class_n = None,
-                          weight_path = './vgg19.h5'
+                          weight_path = './conv_net.h5'
                          )
 model.summary()
 
-stft_model = vgg19_sound.STFT_model(total_samp, FFT_n, FFT_t, img_nrows, img_ncols)
+stft_model = conv_net_sound.STFT_model(total_samp, FFT_n, FFT_t, img_nrows, img_ncols)
 
 print('Model loaded.')
 

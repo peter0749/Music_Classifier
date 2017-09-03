@@ -23,7 +23,7 @@ def custom_STFT_layer(x, FFT_n, FFT_t, img_nrows, img_ncols):
     return spec
     ##  end of spectrogram
 
-def vgg19(input_tensor = None,
+def conv_net(input_tensor = None,
                segment_n = 64,
                FFT_n = 2048,
                FFT_t = 256,

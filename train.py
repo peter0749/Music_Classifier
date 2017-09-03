@@ -27,7 +27,7 @@ from scipy.optimize import fmin_l_bfgs_b
 import argparse
 import scipy
 import scipy.io.wavfile
-import vgg19_sound
+import conv_net_sound
 from utils import preprocess_wav
 from utils import deprocess_wav
 
@@ -103,7 +103,7 @@ def generator():
         if cap==0: ## full
             yield x, y
 
-model = vgg19_sound.vgg19(input_tensor = None,
+model = conv_net_sound.conv_net(input_tensor = None,
                           segment_n = segment_n,
                           FFT_n = FFT_n,
                           FFT_t = FFT_t,
@@ -117,7 +117,7 @@ optimizer = SGD(lr=0.0001, momentum=0.9)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 checkPoint = ModelCheckpoint(filepath="./top_weight.h5", verbose=1, save_best_only=True, monitor='loss', mode='min', save_weights_only=True, period=50)
 model.fit_generator(generator(), steps_per_epoch=1, epochs=iterations, callbacks=[checkPoint])
-to_save = vgg19_sound.vgg19(input_tensor = None,
+to_save = conv_net_sound.conv_net(input_tensor = None,
                           segment_n = segment_n,
                           FFT_n = FFT_n,
                           FFT_t = FFT_t,
@@ -131,4 +131,4 @@ for l in model.layers:
         except:
             continue
 
-to_save.save_weights('./vgg19.h5')
+to_save.save_weights('./conv_net.h5')
