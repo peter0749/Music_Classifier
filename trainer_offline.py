@@ -235,7 +235,7 @@ f_outputs = K.function([combination_wav], outputs)
 
 
 def eval_loss_and_grads(x):
-    x = x.reshape((1, total_samp, 1))
+    x = x.reshape((1, img_nrows, img_ncols, 1))
     outs = f_outputs([x])
     loss_value = outs[0]
     if len(outs[1:]) == 1:
@@ -286,7 +286,7 @@ def plot_spectrogram(x, fname):
 # so as to minimize the neural style loss
 
 if init_mode == 'noise':
-    x = np.random.randn(1, total_samp, 1) * 1e-3 ## generate initial wav sound
+    x = np.random.randn(1, img_nrows, img_ncols, 1) * 1e-3 ## generate initial wav sound
 else:
     x = preprocess_wav(base_wav_path, offset_base, total_samp, True)
 
