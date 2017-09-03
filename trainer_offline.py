@@ -163,10 +163,6 @@ x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
 model = Model(input_layer, x) ## model: wav -> features
 model.summary()
 
-stft_input = Input(shape=(total_samp, 1))
-stft_output = Lambda(custom_STFT_layer)(stft_input)
-stft_model = Model(input=stft_input, output=stft_output)
-
 print('Model loaded.')
 
 # get the symbolic outputs of each "key" layer (we gave them unique names).
@@ -306,7 +302,7 @@ for i in xrange(iterations):
     # save current generated image
     wav = deprocess_wav(x.copy())
     fname = result_prefix + '_at_iteration_%d.wav' % i
-    plot_spectrogram(wav.copy(), fname+'.png')
+    plot_spectrogram(x.copy(), fname+'.png')
     scipy.io.wavfile.write(fname, rate, wav)
     end_time = time.time()
     print('wav saved as', fname)
