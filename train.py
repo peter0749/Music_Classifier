@@ -77,7 +77,7 @@ model = vgg19_sound.vgg19(input_tensor = None,
                          )
 model.summary()
 optimizer = RMSprop(lr=lr)
-model.comple(loss='categorical_crossentropy', optimizer=optimizer)
+model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 model.fit(data, label, batch_size=2, shuffle=False, epochs=iterations)
 
 to_save = vgg19_sound.vgg19(input_tensor = None,
