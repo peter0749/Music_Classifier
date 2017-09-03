@@ -18,9 +18,9 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint, CSVLogger
 from keras import backend as K
 from keras.engine.topology import Layer
 from keras import regularizers
-from keras.optimizers import RMSprop
+from keras.optimizers import SGD
 from keras.utils.io_utils import HDF5Matrix
-from keras.callbacks import EarlyStopping, ModelCheckpoint, CSVLogger
+from keras.callbacks import ModelCheckpoint
 from scipy.optimize import fmin_l_bfgs_b
 import argparse
 import scipy
@@ -79,16 +79,27 @@ def generator():
     ref_wav_data  = ref_wav_data.astype(np.float32)
     data_shape = (batch_size, total_samp, 1)
     label_shape= (batch_size, 2)
-    fetch_size = batch_size*total_samp
-    y_base = np.zeros(label_shape, dtype=np.bool)
-    y_ref  = np.zeros(label_shape, dtype=np.bool)
-    y_base[:,0] = 1
-    y_ref[:,1]  = 1
+    x = np.zeros(data_shape, dtype=np.float32)
+    y = np.zeros(label_shape, dtype=np.bool)
+    baseIdx = 0
+    refIdx  = 0
+    cap     = 0
+    od      = 0
     while True:
-        for i in xrange(0, len(base_wav_data)-fetch_size):
-            yield np.reshape(base_wav_data[i:i+fetch_size], data_shape), y_base
-        for i in xrange(0, len(ref_wav_data)-fetch_size):
-            yield np.reshape(ref_wav_data[i:i+fetch_size], data_shape), y_ref
+        if od % 2 == 0:
+            x[cap, :, 0] = base_wav_data[baseIdx:baseIdx+total_samp]
+            y[cap, 0] = 1
+            y[cap, 1] = 0
+            baseIdx = (baseIdx+1) % (len(base_wav_data)-total_samp)
+        else:
+            x[cap, :, 0] = ref_wav_data[refIdx:refIdx+total_samp]
+            y[cap, 0] = 0
+            y[cap, 1] = 1
+            refIdx = (refIdx+1) % (len(ref_wav_data)-total_samp)
+        cap = (cap+1) % batch_size
+        od  = (od+1) % 2
+        if cap==0: ## full
+            yield x, y
 
 model = vgg19_sound.vgg19(input_tensor = None,
                           segment_n = segment_n,
@@ -98,9 +109,10 @@ model = vgg19_sound.vgg19(input_tensor = None,
                           class_n = 2
                          )
 model.summary()
-optimizer = RMSprop(lr=lr)
+optimizer = SGD(lr=0.0001, momentum=0.9)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
-model.fit_generator(generator(), steps_per_epoch=1, epochs=iterations)
+checkPoint = ModelCheckpoint(filepath="./top_weight.h5", verbose=1, save_best_only=True, monitor='loss', mode='min', save_weights_only=True, period=50)
+model.fit_generator(generator(), steps_per_epoch=1, epochs=iterations, callbacks=[checkPoint])
 to_save = vgg19_sound.vgg19(input_tensor = None,
                           segment_n = segment_n,
                           FFT_n = FFT_n,
