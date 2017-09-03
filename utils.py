@@ -4,8 +4,7 @@ import scipy
 import scipy.io.wavfile
 
 def preprocess_wav(wavfile, offset, sample_n, normalize=False):
-    input_rate, wavData = scipy.io.wavfile.read(str(wavfile))
-    assert input_rate == rate
+    rate, wavData = scipy.io.wavfile.read(str(wavfile))
     offset *= rate
     if wavData.ndim>1.:
         wavData = wavData[...,0]

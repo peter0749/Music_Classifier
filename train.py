@@ -26,8 +26,8 @@ import argparse
 import scipy
 import scipy.io.wavfile
 import vgg19_sound
-import utils.preprocess_wav
-import utils.deprocess_wav
+from utils import preprocess_wav
+from utils import deprocess_wav
 
 parser = argparse.ArgumentParser(description='Neural style transfer with Keras.')
 parser.add_argument('base_wav_path', metavar='base', type=str,
