@@ -131,8 +131,8 @@ else:
     input_layer = input_tensor
 
 # Block 1
-x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block1_conv1', kernel_initializer='random_normal')(input_layer)
-x = Conv2D(128, (11, 11), activation='relu', padding='same', name='block1_conv2', kernel_initializer='random_normal')(x)
+x = Conv2D(128, (3, 3), activation='relu', padding='same', name='block1_conv1', kernel_initializer='random_normal')(input_layer)
+x = Conv2D(256, (7, 7), activation='relu', padding='same', name='block1_conv2', kernel_initializer='random_normal')(x)
 
 model = Model(input_layer, x) ## model: wav -> features
 model.summary()
