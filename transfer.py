@@ -32,6 +32,9 @@ import scipy.io.wavfile
 import matplotlib
 matplotlib.use('Agg') ## headless
 import matplotlib.pyplot as plt
+import vgg19_sound
+import utils.preprocess_wav
+import utils.deprocess_wav
 
 parser = argparse.ArgumentParser(description='Neural style transfer with Keras.')
 parser.add_argument('base_wav_path', metavar='base', type=str,
@@ -105,60 +108,17 @@ combination_wav = K.placeholder((1, total_samp, 1))
 input_tensor = K.concatenate([base_wav,
                               style_reference_wav,
                               combination_wav], axis=0)
-if not K.is_keras_tensor(input_tensor):
-    input_layer = Input(tensor=input_tensor, shape=(total_samp, 1))
-else:
-    input_layer = input_tensor
-
-def custom_STFT_layer(x):
-    ## input_shape: (batch_size, timestep, channel)
-    ## output_shape:(batch_size, sample, freq_range, channel)
-    stft = tf.contrib.signal.stft(x[...,0], FFT_n, FFT_t)
-    dense = tf.abs(stft)
-    spec  = tf.log1p(dense)
-    ##  end of spectrogram
-    y = tf.expand_dims(spec, -1)
-    return y[:, :img_nrows, :img_ncols, :]
-
-stfted = Lambda(custom_STFT_layer, name='STFT')(input_layer)
-## VGG19 Net:
-# Block 1
-x = Conv2D(64, (3, 3), activation='relu', padding='same', name='block1_conv1', kernel_initializer='random_normal')(stfted)
-x = Conv2D(64, (3, 3), activation='relu', padding='same', name='block1_conv2', kernel_initializer='random_normal')(x)
-x = MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool')(x)
-
-# Block 2
-x = Conv2D(128, (3, 3), activation='relu', padding='same', name='block2_conv1', kernel_initializer='random_normal')(x)
-x = Conv2D(128, (3, 3), activation='relu', padding='same', name='block2_conv2', kernel_initializer='random_normal')(x)
-x = MaxPooling2D((2, 2), strides=(2, 2), name='block2_pool')(x)
-
-# Block 3
-x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv1', kernel_initializer='random_normal')(x)
-x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv2', kernel_initializer='random_normal')(x)
-x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv3', kernel_initializer='random_normal')(x)
-x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv4', kernel_initializer='random_normal')(x)
-x = MaxPooling2D((2, 2), strides=(2, 2), name='block3_pool')(x)
-
-# Block 4
-x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv1', kernel_initializer='random_normal')(x)
-x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv2', kernel_initializer='random_normal')(x)
-x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv3', kernel_initializer='random_normal')(x)
-x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv4', kernel_initializer='random_normal')(x)
-x = MaxPooling2D((2, 2), strides=(2, 2), name='block4_pool')(x)
-
-# Block 5
-x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv1', kernel_initializer='random_normal')(x)
-x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv2', kernel_initializer='random_normal')(x)
-x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv3', kernel_initializer='random_normal')(x)
-x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv4', kernel_initializer='random_normal')(x)
-x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
-
-model = Model(input_layer, x) ## model: wav -> features
+model = vgg19_sound.vgg19(input_tensor = input_tensor,
+                          segment_n = segment_n,
+                          FFT_n = FFT_n,
+                          FFT_t = FFT_t,
+                          img_nrows = img_nrows, img_ncols = img_ncols,
+                          class_n = None,
+                          weight_path = './vgg19.h5'
+                         )
 model.summary()
 
-stft_input = Input(shape=(total_samp, 1))
-stft_output = Lambda(custom_STFT_layer)(stft_input)
-stft_model = Model(input=stft_input, output=stft_output)
+stft_model = vgg19_sound.STFT_model(total_samp, FFT_n, FFT_t, img_nrows, img_ncols)
 
 print('Model loaded.')
 
