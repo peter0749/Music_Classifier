@@ -163,21 +163,17 @@ def content_loss(base, combination):
 
 # combine these loss functions into a single scalar
 loss = K.variable(0.)
-#layer_features = outputs_dict['block3_conv4']
-layer_features = outputs_dict['block3_conv2']
-base_wav_features = layer_features[0, :, :, :]
-combination_features = layer_features[2, :, :, :]
-loss += content_weight * content_loss(base_wav_features,
-                                      combination_features)
 
 feature_layers = ['block1_conv1', 'block2_conv1',
                   'block3_conv1']
 for layer_name in feature_layers:
     layer_features = outputs_dict[layer_name]
+    base_wav_features = layer_features[0, :, :, :]
     style_reference_features = layer_features[1, :, :, :]
     combination_features = layer_features[2, :, :, :]
     sl = style_loss(style_reference_features, combination_features)
-    loss += (style_weight / len(feature_layers)) * sl
+    cl = content_loss(base_wav_features, combination_features)
+    loss += ((style_weight*sl + content_weight*cl) / len(feature_layers))
 
 # get the gradients of the generated image wrt the loss
 grads = K.gradients(loss, combination_wav)
