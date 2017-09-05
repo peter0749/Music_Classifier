@@ -14,5 +14,5 @@ def preprocess_wav(wavfile, offset, sample_n):
     return wavData
 
 def deprocess_wav(x):
-    return x.flatten().clip(-1., 1.)
+    return x.flatten().clip(-32768, 32767).astype(np.int16)
 
