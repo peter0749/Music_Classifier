@@ -89,7 +89,7 @@ input_tensor = K.concatenate([base_wav,
                               style_reference_wav,
                               combination_wav], axis=0)
 model = conv_net_sound.conv_net(input_tensor = input_tensor,
-                          input_shape = (1, total_samp),
+                          input_shape = [total_samp],
                           class_n = None,
                           weight_path = './conv_net.h5'
                          )
