@@ -142,21 +142,30 @@ def content_loss(base, combination):
 loss = K.variable(0.)
 
 feature_layers = [
-                  'block1_conv1_gpu1',
-                  'block1_conv1_gpu2',
-                  'block2_conv1_gpu1',
-                  'block2_conv1_gpu2',
-                  'block3_conv1_gpu1',
-                  'block3_conv1_gpu2'
-                 ]
+        'block3_conv2_gpu1',
+        'block3_conv2_gpu2'
+        ]
 for layer_name in feature_layers:
     layer_features = outputs_dict[layer_name]
     base_wav_features = layer_features[0, :, :, :]
+    combination_features = layer_features[2, :, :, :]
+    cl = content_loss(base_wav_features, combination_features)
+    loss += (content_weight / len(feature_layers)) * cl
+
+feature_layers = [
+        'block1_conv1_gpu1',
+        'block1_conv1_gpu2',
+        'block2_conv1_gpu1',
+        'block2_conv1_gpu2',
+        'block3_conv1_gpu1',
+        'block3_conv1_gpu2'
+        ]
+for layer_name in feature_layers:
+    layer_features = outputs_dict[layer_name]
     style_reference_features = layer_features[1, :, :, :]
     combination_features = layer_features[2, :, :, :]
     sl = style_loss(style_reference_features, combination_features)
-    cl = content_loss(base_wav_features, combination_features)
-    loss += ((style_weight*sl + content_weight*cl) / len(feature_layers))
+    loss += (style_weight / len(feature_layers)) * sl
 
 # get the gradients of the generated image wrt the loss
 grads = K.gradients(loss, combination_wav)
