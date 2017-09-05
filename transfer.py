@@ -74,51 +74,27 @@ content_weight = args.content_weight
 
 segment_n = 64
 FFT_n = 2048
-FFT_t = FFT_n/8
+FFT_t = FFT_n//8
 total_samp = segment_n*FFT_n
 img_nrows, img_ncols = 505, 768
 
-def preprocess_wav(wavfile, offset, sample_n, normalize=False):
-    input_rate, wavData = scipy.io.wavfile.read(str(wavfile))
-    assert input_rate == rate
-    offset *= rate
-    if wavData.ndim>1.:
-        wavData = wavData[...,0]
-    wavData = wavData[offset:offset+sample_n] ## skip sample
-    if normalize:
-        wavData = wavData.astype(np.float64) ## convert int32 -> float64
-        minAmp = wavData[np.argmin(np.abs(wavData))] ## find min amptitude
-        wavData[:] -= minAmp ## shift wave to center (a.k.a. 0)
-        maxAmp = max(1e-7, np.max(np.abs(wavData))) ## find max amptitude
-        wavData[:] /= maxAmp ## normalize to (-1, 1)
-    wavData = wavData.astype(np.float32) ## downcast to float32 ( float64 -> float32)
-    wavData = np.reshape(wavData, (1, sample_n, 1))
-    return wavData
-
-def deprocess_wav(x):
-    return x.flatten().clip(-1., 1.)
-
-base_wav_data = preprocess_wav(base_wav_path, offset_base, total_samp, True)
-style_reference_wav_data = preprocess_wav(style_reference_wav_path, offset_ref, total_samp, True)
+base_wav_data = preprocess_wav(base_wav_path, offset_base, total_samp)
+style_reference_wav_data = preprocess_wav(style_reference_wav_path, offset_ref, total_samp)
 
 base_wav = K.variable(base_wav_data.copy())
 style_reference_wav = K.variable(style_reference_wav_data.copy())
-combination_wav = K.placeholder((1, total_samp, 1))
+combination_wav = K.placeholder((1, total_samp))
 
 input_tensor = K.concatenate([base_wav,
                               style_reference_wav,
                               combination_wav], axis=0)
 model = conv_net_sound.conv_net(input_tensor = input_tensor,
-                          segment_n = segment_n,
-                          FFT_n = FFT_n,
-                          FFT_t = FFT_t,
-                          img_nrows = img_nrows, img_ncols = img_ncols,
                           class_n = None,
                           weight_path = './conv_net.h5'
                          )
 model.summary()
 
-stft_model = conv_net_sound.STFT_model(total_samp, FFT_n, FFT_t, img_nrows, img_ncols)
+stft_model = conv_net_sound.STFT_model(total_samp)
 
 print('Model loaded.')
 
@@ -164,8 +140,14 @@ def content_loss(base, combination):
 # combine these loss functions into a single scalar
 loss = K.variable(0.)
 
-feature_layers = ['block1_conv1', 'block2_conv1',
-                  'block3_conv1']
+feature_layers = [
+                  'block1_conv1_gpu1',
+                  'block1_conv1_gpu2',
+                  'block2_conv1_gpu1',
+                  'block2_conv1_gpu2',
+                  'block3_conv1_gpu1',
+                  'block3_conv1_gpu2'
+                 ]
 for layer_name in feature_layers:
     layer_features = outputs_dict[layer_name]
     base_wav_features = layer_features[0, :, :, :]
@@ -188,7 +170,7 @@ f_outputs = K.function([combination_wav], outputs)
 
 
 def eval_loss_and_grads(x):
-    x = x.reshape((1, total_samp, 1))
+    x = x.reshape((1, total_samp))
     outs = f_outputs([x])
     loss_value = outs[0]
     if len(outs[1:]) == 1:
@@ -228,7 +210,7 @@ class Evaluator(object):
 evaluator = Evaluator()
 
 def plot_spectrogram(x, fname):
-    x = np.reshape(x, (1, total_samp, 1))
+    x = np.reshape(x, (1, total_samp))
     x = stft_model.predict(x)
     x = np.reshape(x, (img_nrows, img_ncols))
     x = np.transpose(x, (1, 0))
@@ -242,9 +224,9 @@ def plot_spectrogram(x, fname):
 # so as to minimize the neural style loss
 
 if init_mode == 'noise':
-    x = np.random.randn(1, total_samp, 1) * 1e-3 ## generate initial wav sound
+    x = np.random.uniform(-32768, 32767, (1, total_samp)) ## random pcm_s16le
 else:
-    x = preprocess_wav(base_wav_path, offset_base, total_samp, True)
+    x = preprocess_wav(base_wav_path, offset_base, total_samp)
 
 plot_spectrogram(base_wav_data.copy(), 'base.png')
 plot_spectrogram(style_reference_wav_data.copy(), 'style.png')
