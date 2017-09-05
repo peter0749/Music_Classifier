@@ -34,7 +34,7 @@ def conv_net(input_tensor = None,
     dev1 = '/gpu:0'
     dev2 = '/gpu:1'
     if input_tensor is None:
-        input_layer = Input(input_shape)
+        input_layer = Input(shape=input_shape)
     else:
         if not K.is_keras_tensor(input_tensor):
             input_layer = Input(tensor=input_tensor, shape=input_shape)
