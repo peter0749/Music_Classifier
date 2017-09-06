@@ -13,22 +13,8 @@ from keras import backend as K
 from keras.engine.topology import Layer
 from keras import regularizers
 
-def custom_STFT_layer(x, FFT_n=2048, FFT_t=256, img_nrows=505, img_ncols=768):
-    ## input_shape: (batch_size, timestep)
-    ## output_shape:(batch_size, sample, freq_range, channel)
-    scale = 1.0/32768.0 ## pcm_s16le -> pcm_f32le, your wav file must in pcm_s16le format
-    y = tf.cast(x, tf.float32)
-    y = tf.scalar_mul(scale, y)
-    stft = tf.contrib.signal.stft(y, FFT_n, FFT_t)
-    stft = tf.expand_dims(stft, -1)
-    dense = tf.abs(stft[:, :img_nrows, :img_ncols, :])
-    spec  = tf.log1p(dense)
-    return spec
-    ##  end of spectrogram
-
 def conv_net(input_tensor = None,
                input_shape = None,
-               class_n = None,
                weight_path = None
                ):
     dev1 = '/gpu:0'
@@ -41,11 +27,10 @@ def conv_net(input_tensor = None,
         else:
             input_layer = input_tensor
 
-    stfted = Lambda(custom_STFT_layer, name='STFT')(input_layer)
     ## VGG19 Net:
     # Block 1
     with tf.device(dev1):
-        x1_0 = Conv2D(32, (3, 3), activation='relu', padding='same', name='block1_conv1_gpu1', kernel_initializer='random_normal')(stfted)
+        x1_0 = Conv2D(32, (3, 3), activation='relu', padding='same', name='block1_conv1_gpu1', kernel_initializer='random_normal')(input_layer)
         x1_0 = MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool1_gpu1')(x1_0)
     with tf.device(dev2):
         x2_0 = Conv2D(32, (3, 3), activation='relu', padding='same', name='block1_conv1_gpu2', kernel_initializer='random_normal')(stfted)
@@ -104,42 +89,10 @@ def conv_net(input_tensor = None,
         x2_7 = concatenate([x1_6, x2_6], axis=-1)
         x2_7 = Conv2D(128, (3, 3), activation='relu', padding='same', name='block3_conv4_gpu2', kernel_initializer='random_normal')(x2_7)
         x2_7 = MaxPooling2D((2, 2), strides=(2, 2), name='block3_pool2_gpu2')(x2_7)
-
-    if class_n is not None:
-        with tf.device(dev1):
-            x1_7 = Flatten()(x1_7)
-        with tf.device(dev2):
-            x2_7 = Flatten()(x2_7)
-        with tf.device(dev1):
-            x1_8 = concatenate([x1_7, x2_7], axis=-1)
-            x1_8 = Dense(256, activation='relu', name='fc1_gpu1')(x1_8) ## reduced net for memory
-            x1_8 = Dropout(0.5)(x1_8)
-        with tf.device(dev2):
-            x2_8 = concatenate([x1_7, x2_7], axis=-1)
-            x2_8 = Dense(256, activation='relu', name='fc1_gpu2')(x2_8) ## reduced net for memory
-            x2_8 = Dropout(0.5)(x2_8)
-        with tf.device(dev1):
-            x1_9 = concatenate([x1_8, x2_8], axis=-1)
-            x1_9 = Dense(256, activation='relu', name='fc2_gpu1')(x1_9) ## reduced net for memory
-            x1_9 = Dropout(0.5)(x1_9)
-        with tf.device(dev2):
-            x2_9 = concatenate([x1_8, x2_8], axis=-1)
-            x2_9 = Dense(256, activation='relu', name='fc2_gpu2')(x2_9) ## reduced net for memory
-            x2_9 = Dropout(0.5)(x2_9)
-        with tf.device(dev1):
-            x = concatenate([x1_9, x2_9], name='fc2')
-            x = Dense(class_n, activation='softmax')(x)
-    else:
-        with tf.device(dev1):
-            x = concatenate([x1_7, x2_7], axis=-1)
+    with tf.device(dev1):
+        x = concatenate([x1_7, x2_7], axis=-1)
     model = Model(input_layer, x) ## model: wav -> features
     if weight_path is not None:
         model.load_weights(str(weight_path))
     return model
 
-
-def STFT_model(total_samp):
-    stft_input = Input(shape=[total_samp])
-    stft_output = Lambda(custom_STFT_layer)(stft_input)
-    stft_model = Model(input=stft_input, output=stft_output)
-    return stft_model
