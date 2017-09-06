@@ -91,6 +91,8 @@ def spectrogram(x):
     return y
 
 def invert_spectrogram(result, iterations=800): ## shape: 1, img_nrows, img_ncols, 1
+    ## Formula: x_{n+1}=istft(S∗exp(1i∗angle(stft(x_{n}))))
+    ## More detail: https://dsp.stackexchange.com/questions/9877/reconstruction-of-audio-signal-from-spectrogram
     result = np.reshape(result, (img_nrows, img_ncols)).T
     result = np.exp(result) - 1.
     signal = np.zeros((FFT_n/2+1, img_nrows), dtype=np.float64)
