@@ -13,7 +13,7 @@ from keras import backend as K
 from keras.engine.topology import Layer
 from keras import regularizers
 
-def custom_STFT_layer(x, FFT_n=2048, FFT_t=256, img_nrows=505, img_ncols=768):
+def custom_STFT_layer(x, FFT_n=2048, FFT_t=256, img_nrows=505, img_ncols=1025):
     ## input_shape: (batch_size, timestep)
     ## output_shape:(batch_size, sample, freq_range, channel)
     scale = 1.0/32768.0 ## pcm_s16le -> pcm_f32le, your wav file must in pcm_s16le format

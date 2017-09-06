@@ -1,6 +1,6 @@
 import conv_net_sound
 import conv_net_sound_weight
-img_nrows, img_ncols = 505, 768
+img_nrows, img_ncols = 505, 1025
 input_shape = [330491]
 model_old = conv_net_sound_weight.conv_net(input_shape=input_shape, class_n = 16)
 model_old.load_weights('./top_weight.h5')

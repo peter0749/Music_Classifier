@@ -81,7 +81,7 @@ segment_n = 64
 FFT_n = 2048
 FFT_t = FFT_n//8
 total_samp = segment_n*FFT_n
-img_nrows, img_ncols = 505, 768
+img_nrows, img_ncols = 505, 1025
 
 def spectrogram(x):
     stfted = librosa.stft(x, FFT_n, FFT_t)
@@ -150,7 +150,7 @@ def gram_matrix(x):
     assert K.ndim(x) == 3
     features = K.batch_flatten(K.permute_dimensions(x, (2, 0, 1))) ## Supports Tensorflow only. "channel last" mode by default
     gram = K.dot(features, K.transpose(features))
-    return gram / img_nrows
+    return gram / img_nrows ## gram / sample_n
 
 # the "style loss" is designed to maintain
 # the style of the reference image in the generated image.
