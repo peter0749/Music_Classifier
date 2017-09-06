@@ -59,6 +59,8 @@ parser.add_argument('--offset_ref', type=int, default=5, required=False,
                     help='Time offset of reference wav.')
 parser.add_argument('--init', type=str, default='noise', required=False,
                     help='Initial state of output wav file. [noise/base] (default=noise)')
+parser.add_argument('--result_only', type=bool, default=True, required=False,
+                    help='Just generate final result. (default:True)')
 
 args = parser.parse_args()
 base_wav_path = args.base_wav_path
@@ -69,6 +71,7 @@ rate = args.ar
 offset_base = args.offset_base
 offset_ref  = args.offset_ref
 init_mode = args.init
+result_only = args.result_only
 
 # these are the weights of the different loss components
 style_weight = args.style_weight
@@ -272,6 +275,8 @@ else:
 plot_spectrogram(base_wav_data.copy(), 'base.png')
 plot_spectrogram(style_reference_wav_data.copy(), 'style.png')
 
+wav = None
+
 for i in xrange(iterations):
     eprint('Start of iteration', i)
     start_time = time.time()
@@ -279,11 +284,15 @@ for i in xrange(iterations):
                                      fprime=evaluator.grads, maxfun=32)
     eprint('Current loss value:', min_val)
     # save current generated image
-    wav = deprocess_wav(x.copy())
-    fname = result_prefix + '_at_iteration_%d.wav' % i
-    plot_spectrogram(x.copy(), fname+'.png')
-    scipy.io.wavfile.write(fname, rate, wav)
+    if not result_only:
+        wav = deprocess_wav(x.copy())
+        fname = result_prefix + '_at_iteration_%d.wav' % i
+        plot_spectrogram(x.copy(), fname+'.png')
+        scipy.io.wavfile.write(fname, rate, wav)
     end_time = time.time()
     eprint('wav saved as', fname)
     eprint('Iteration %d completed in %ds' % (i, end_time - start_time))
 
+fname = result_prefix + 'result.wav'
+plot_spectrogram(x.copy(), fname+'.png')
+scipy.io.wavfile.write(fname, rate, wav)
