@@ -33,7 +33,7 @@ def conv_net(input_tensor = None,
         x1_0 = Conv2D(32, (3, 3), activation='relu', padding='same', name='block1_conv1_gpu1', kernel_initializer='random_normal')(input_layer)
         x1_0 = MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool1_gpu1')(x1_0)
     with tf.device(dev2):
-        x2_0 = Conv2D(32, (3, 3), activation='relu', padding='same', name='block1_conv1_gpu2', kernel_initializer='random_normal')(stfted)
+        x2_0 = Conv2D(32, (3, 3), activation='relu', padding='same', name='block1_conv1_gpu2', kernel_initializer='random_normal')(input_layer)
         x2_0 = MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool1_gpu2')(x2_0)
     with tf.device(dev1):
         x1_1 = concatenate([x1_0, x2_0], axis=-1)

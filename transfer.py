@@ -29,6 +29,7 @@ import time
 import argparse
 import scipy
 import scipy.io.wavfile
+import librosa
 import matplotlib
 matplotlib.use('Agg') ## headless
 import matplotlib.pyplot as plt
@@ -209,7 +210,7 @@ f_outputs = K.function([combination_wav], outputs)
 
 
 def eval_loss_and_grads(x):
-    x = x.reshape((1, total_samp))
+    x = x.reshape((1, img_nrows, img_ncols, 1))
     outs = f_outputs([x])
     loss_value = outs[0]
     if len(outs[1:]) == 1:
@@ -275,10 +276,10 @@ for i in xrange(iterations):
                                      fprime=evaluator.grads, maxfun=32)
     print('Current loss value:', min_val)
     # save current generated image
-    wav = deprocess_wav(x.copy())
+    #wav = deprocess_wav(x.copy())
     fname = result_prefix + '_at_iteration_%d.wav' % i
     plot_spectrogram(x.copy(), fname+'.png')
-    scipy.io.wavfile.write(fname, rate, wav)
+    #scipy.io.wavfile.write(fname, rate, wav)
     end_time = time.time()
     print('wav saved as', fname)
     print('Iteration %d completed in %ds' % (i, end_time - start_time))
