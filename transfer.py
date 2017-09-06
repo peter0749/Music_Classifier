@@ -59,8 +59,8 @@ parser.add_argument('--offset_ref', type=int, default=5, required=False,
                     help='Time offset of reference wav.')
 parser.add_argument('--init', type=str, default='noise', required=False,
                     help='Initial state of output wav file. [noise/base] (default=noise)')
-parser.add_argument('--result_only', type=bool, default=True, required=False,
-                    help='Just generate final result. (default:True)')
+parser.add_argument('--result_only', type=int, default=1, required=False,
+                    help='Just generate final result. (default:1)')
 
 args = parser.parse_args()
 base_wav_path = args.base_wav_path
@@ -71,7 +71,7 @@ rate = args.ar
 offset_base = args.offset_base
 offset_ref  = args.offset_ref
 init_mode = args.init
-result_only = args.result_only
+result_only = True if args.result_only!=0 else False
 
 # these are the weights of the different loss components
 style_weight = args.style_weight
@@ -166,14 +166,14 @@ def style_loss(style, combination):
     C = gram_matrix(combination)
     channels = 1
     size = img_nrows * img_ncols
-    return K.sum(K.square(S - C)) / (4. * (channels ** 2) * (size ** 2))
+    return K.sum(K.square(S - C)) / (channels * size) ## mse / feature size
 
 # an auxiliary loss function
 # designed to maintain the "content" of the
 # base image in the generated image
 
 
-def content_loss(base, combination):
+def content_loss(base, combination): ## mse
     return K.sum(K.square(combination - base))
 
 # combine these loss functions into a single scalar
