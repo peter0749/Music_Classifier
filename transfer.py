@@ -150,7 +150,7 @@ def gram_matrix(x):
     assert K.ndim(x) == 3
     features = K.batch_flatten(K.permute_dimensions(x, (2, 0, 1))) ## Supports Tensorflow only. "channel last" mode by default
     gram = K.dot(features, K.transpose(features))
-    return gram
+    return gram / img_nrows
 
 # the "style loss" is designed to maintain
 # the style of the reference image in the generated image.
@@ -164,9 +164,7 @@ def style_loss(style, combination):
     assert K.ndim(combination) == 3
     S = gram_matrix(style)
     C = gram_matrix(combination)
-    channels = 1
-    size = img_nrows * img_ncols
-    return K.sum(K.square(S - C)) / (channels * size) ## mse / feature size
+    return K.sum(K.square(S - C)) ## mse / feature size
 
 # an auxiliary loss function
 # designed to maintain the "content" of the
