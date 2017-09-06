@@ -35,6 +35,9 @@ matplotlib.use('Agg') ## headless
 import matplotlib.pyplot as plt
 import conv_net_sound
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 parser = argparse.ArgumentParser(description='Neural style transfer with Keras.')
 parser.add_argument('base_wav_path', metavar='base', type=str,
                     help='Path to the wav to transform.')
@@ -127,7 +130,7 @@ model = conv_net_sound.conv_net(input_tensor = input_tensor,
                          )
 model.summary()
 
-print('Model loaded.')
+eprint('Model loaded.')
 
 # get the symbolic outputs of each "key" layer (we gave them unique names).
 outputs_dict = dict([(layer.name, layer.output) for layer in model.layers])
@@ -270,17 +273,17 @@ plot_spectrogram(base_wav_data.copy(), 'base.png')
 plot_spectrogram(style_reference_wav_data.copy(), 'style.png')
 
 for i in xrange(iterations):
-    print('Start of iteration', i)
+    eprint('Start of iteration', i)
     start_time = time.time()
     x, min_val, info = fmin_l_bfgs_b(evaluator.loss, x.flatten(),
                                      fprime=evaluator.grads, maxfun=32)
-    print('Current loss value:', min_val)
+    eprint('Current loss value:', min_val)
     # save current generated image
-    #wav = deprocess_wav(x.copy())
+    wav = deprocess_wav(x.copy())
     fname = result_prefix + '_at_iteration_%d.wav' % i
     plot_spectrogram(x.copy(), fname+'.png')
-    #scipy.io.wavfile.write(fname, rate, wav)
+    scipy.io.wavfile.write(fname, rate, wav)
     end_time = time.time()
-    print('wav saved as', fname)
-    print('Iteration %d completed in %ds' % (i, end_time - start_time))
+    eprint('wav saved as', fname)
+    eprint('Iteration %d completed in %ds' % (i, end_time - start_time))
 
