@@ -270,7 +270,7 @@ def plot_spectrogram(x, fname):
 # so as to minimize the neural style loss
 
 if init_mode == 'noise':
-    x = np.random.randn(1, img_nrows, img_ncols, 1) * 1e-3
+    x = np.random.randn(1, img_nrows, img_ncols, 1) * 1e-6
 else:
     x = preprocess_wav(base_wav_path, offset_base, total_samp)
 
