@@ -9,19 +9,25 @@ import sys
 import math
 import numpy as np
 import scipy
+import argparse
 import scipy.io.wavfile
 import librosa
 import matplotlib
 matplotlib.use('Agg') ## headless
 import matplotlib.pyplot as plt
+from keras.models import Model
 import conv_net_sound
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 parser = argparse.ArgumentParser(description='Neural style transfer layer visualizer.')
-parser.add_argument('wav_path', metavar='base', type=str,
+parser.add_argument('wav_path', metavar='wavfile', type=str,
                     help='Path to the wav file.')
+parser.add_argument('prefix', metavar='prefix', type=str,
+                    help='Prefix of extracted feature maps.')
+parser.add_argument('layer', metavar='layer', type=str,
+                    help='Layer name in this model.')
 parser.add_argument('--ar', type=int, default=11025, required=False,
                     help='Sample rate.')
 parser.add_argument('--offset', type=int, default=5, required=False,
@@ -31,6 +37,8 @@ args = parser.parse_args()
 wav_path = args.wav_path
 rate = args.ar
 offset = args.offset
+prefix = args.prefix
+layer  = args.layer
 
 segment_n = 64
 FFT_n = 2048
@@ -79,33 +87,31 @@ model.summary()
 
 eprint('Model loaded.')
 
-feature_layers = [
-        'block3_conv2_gpu1',
-        'block3_conv2_gpu2',
-        'block1_conv1_gpu1',
-        'block1_conv1_gpu2',
-        'block2_conv1_gpu1',
-        'block2_conv1_gpu2',
-        'block3_conv1_gpu1',
-        'block3_conv1_gpu2'
-        ]
+#feature_layers = [
+        #'block1_conv1_gpu1',
+        #'block1_conv1_gpu2',
+        #'block2_conv1_gpu1',
+        #'block2_conv1_gpu2',
+        #'block3_conv1_gpu1',
+        #'block3_conv1_gpu2',
+        #'block3_conv2_gpu1',
+        #'block3_conv2_gpu2'
+        #]
 
 def plot_spectrogram(x, fname):
-    x = np.reshape(x, (img_ncols, img_nrows))
     plt.ylabel('Frequency [HZ]')
     plt.xlabel('Time [not scaled]')
     plt.imshow(x)
-    plt.savefig(str(fname))
+    plt.savefig(prefix+str(fname))
 
 def layer_extract(x, layer_name):
     feature_extractor = Model(input=model.input, output=model.get_layer(layer_name).output)
     h = feature_extractor.predict(x, verbose=0, batch_size=1)[0] ## shape: (frame_n, freq_n, channel_n)
-    h = np.reshape(h, [2, 1, 0]) ## shape: (channel_n, freq_n, frame_n)
+    h = np.transpose(h, [2, 1, 0]) ## shape: (channel_n, freq_n, frame_n)
     for i, feature_map in enumerate(h):
         plot_spectrogram(feature_map, layer_name+'_'+str(i))
 
-plot_spectrogram(wav_data.copy(), 'spectrogram.png')
+plot_spectrogram(np.reshape(wav_data, (img_nrows, img_ncols)).T, 'spectrogram.png')
 
-for features in feature_layers:
-    layer_extract(wav_data, features)
+layer_extract(wav_data, layer)
 
