@@ -90,7 +90,7 @@ def spectrogram(x):
     y = np.reshape(y, (1, img_nrows, img_ncols, 1))
     return y
 
-def invert_spectrogram(result, iterations=800): ## shape: 1, img_nrows, img_ncols, 1
+def invert_spectrogram(result, iterations=512): ## shape: 1, img_nrows, img_ncols, 1
     ## Formula: x_{n+1}=istft(S∗exp(1i∗angle(stft(x_{n}))))
     ## More detail: https://dsp.stackexchange.com/questions/9877/reconstruction-of-audio-signal-from-spectrogram
     result = np.reshape(result, (img_nrows, img_ncols)).T
@@ -131,6 +131,7 @@ input_tensor = K.concatenate([base_wav,
                               combination_wav], axis=0)
 model = conv_net_sound.conv_net(input_tensor = input_tensor,
                           input_shape = [img_nrows, img_ncols, 1],
+                          class_n = None,
                           weight_path = './conv_net.h5'
                          )
 model.summary()
