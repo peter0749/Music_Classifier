@@ -41,8 +41,6 @@ def eprint(*args, **kwargs):
 parser = argparse.ArgumentParser(description='Neural style transfer with Keras.')
 parser.add_argument('wav_path', metavar='wav', type=str,
                     help='Path to the wav file.')
-parser.add_argument('result_prefix', metavar='res_prefix', type=str,
-                    help='Prefix for the saved results.')
 parser.add_argument('--offset', type=int, default=5, required=False,
                     help='Time offset.')
 parser.add_argument('--ffmpeg', action='store_true', default=False,
@@ -50,7 +48,6 @@ parser.add_argument('--ffmpeg', action='store_true', default=False,
 
 args = parser.parse_args()
 wav_path = args.wav_path
-result_prefix = args.result_prefix
 rate = 11025
 offset = args.offset
 use_ffmpeg = args.ffmpeg
