@@ -10,7 +10,7 @@ if [ $# -gt 1 ]; then
     offset=$2
 fi
 
->&2 echo "Getting audio from youtube..."
+>&2 echo "Getting audio from Youtube..."
 youtube-dl $1 -f 140 --audio-format m4a -o ./tmp.m4a &> /dev/null
 >&2 echo "Processing..."
 echo "Audio from: $1"
