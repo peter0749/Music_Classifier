@@ -7,8 +7,6 @@ import os
 import os.path
 import sys
 import math
-import wave
-import random
 import numpy as np
 import keras
 import tensorflow as tf
@@ -25,14 +23,10 @@ from keras import backend as K
 from keras.engine.topology import Layer
 from keras import regularizers
 from scipy.optimize import fmin_l_bfgs_b
-import time
 import argparse
 import scipy
 import scipy.io.wavfile
 import librosa
-import matplotlib
-matplotlib.use('Agg') ## headless
-import matplotlib.pyplot as plt
 from conv_net_sound import conv_net
 
 parser = argparse.ArgumentParser(description='Neural style transfer with Keras.')
