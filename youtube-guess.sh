@@ -4,7 +4,7 @@ if [ $# -lt 1 ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
     echo "Usage: $0 youtube_url [time_offset(default: 5, in second)]"
     echo "Requirements:"
     echo "FFmpeg, youtube-dl and Python2.7"
-    echo "Requirements of Python packages are in requirements.txt file"
+    echo "Required Python packages are listed on requirements.txt"
   exit 0
 fi
 
