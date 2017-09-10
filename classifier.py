@@ -35,9 +35,6 @@ matplotlib.use('Agg') ## headless
 import matplotlib.pyplot as plt
 from conv_net_sound import conv_net
 
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
-
 parser = argparse.ArgumentParser(description='Neural style transfer with Keras.')
 parser.add_argument('wav_path', metavar='wav', type=str,
                     help='Path to the wav file.')
@@ -58,7 +55,7 @@ def readFromFFmpeg(filepath):
                '-i', filepath,
                '-acodec', 'pcm_s16le',
                '-f', 's16le',
-               '-ac', '1', '-ar', str(rate)]  
+               '-ac', '1', '-ar', str(rate)]
     command.append('-')
     p = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE)
     stdout, _ = p.communicate()
@@ -99,12 +96,6 @@ model = conv_net(input_tensor = None,
                           class_n = len(class_list),
                           weight_path = './top_weight.h5'
                          )
-model.summary()
-
-eprint('Model loaded.')
-
-print('{} genres: {}'.format(len(class_list), class_list)) 
-
 pred_class = model.predict(wav_data, batch_size=1, verbose=0)[0]
 od = np.argsort(-pred_class)
 for i in od:

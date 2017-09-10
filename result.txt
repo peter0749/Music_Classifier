@@ -1,0 +1,17 @@
+Audio from: https://www.youtube.com/watch?v=QGcGPyxltaw
+Classical, confidence: 0.69
+Old-Time / Historic, confidence: 0.16
+Jazz, confidence: 0.11
+Instrumental, confidence: 0.04
+Electronic, confidence: 0.00
+International, confidence: 0.00
+Folk, confidence: 0.00
+Experimental, confidence: 0.00
+Rock, confidence: 0.00
+Pop, confidence: 0.00
+Spoken, confidence: 0.00
+Country, confidence: 0.00
+Hip-Hop, confidence: 0.00
+Easy Listening, confidence: 0.00
+Blues, confidence: 0.00
+Soul-RnB, confidence: 0.00

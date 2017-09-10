@@ -10,6 +10,9 @@ if [ $# -gt 1 ]; then
     offset=$2
 fi
 
-youtube-dl $1 -f 140 --audio-format m4a -o ./tmp.m4a
-python classifier.py ./tmp.m4a --ffmpeg --offset $offset
+>&2 echo "Getting audio from youtube..."
+youtube-dl $1 -f 140 --audio-format m4a -o ./tmp.m4a &> /dev/null
+>&2 echo "Processing..."
+echo "Audio from: $1"
+python classifier.py ./tmp.m4a --ffmpeg --offset $offset 2> /dev/null
 rm -f ./tmp.m4a
