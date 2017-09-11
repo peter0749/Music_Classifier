@@ -59,8 +59,10 @@ parser.add_argument('--offset_ref', type=int, default=5, required=False,
                     help='Time offset of reference wav.')
 parser.add_argument('--init', type=str, default='noise', required=False,
                     help='Initial state of output wav file. [noise/base] (default=noise)')
-parser.add_argument('--result_only', type=int, default=1, required=False,
-                    help='Just generate final result. (default:1)')
+parser.add_argument('--result_only', action='store_true', default=False,
+                    help='Only output final result.')
+parser.add_argument('--ffmpeg', action='store_true', default=False,
+                    help='use FFmpeg')
 
 args = parser.parse_args()
 base_wav_path = args.base_wav_path
@@ -71,7 +73,8 @@ rate = args.ar
 offset_base = args.offset_base
 offset_ref  = args.offset_ref
 init_mode = args.init
-result_only = True if args.result_only!=0 else False
+result_only = args.result_only
+useFFmpeg = args.ffmpeg
 
 # these are the weights of the different loss components
 style_weight = args.style_weight
@@ -82,6 +85,18 @@ FFT_n = 2048
 FFT_t = FFT_n//8
 total_samp = segment_n*FFT_n
 img_nrows, img_ncols = 505, 1025
+
+def readFromFFmpeg(filepath):
+    import subprocess as sp
+    command = ['ffmpeg',
+               '-i', filepath,
+               '-acodec', 'pcm_s16le',
+               '-f', 's16le',
+               '-ac', '1', '-ar', str(rate)]
+    command.append('-')
+    p = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE)
+    stdout, _ = p.communicate()
+    return np.fromstring(stdout, dtype="int16")
 
 def spectrogram(x):
     stfted = librosa.stft(x, FFT_n, FFT_t)
@@ -105,8 +120,12 @@ def invert_spectrogram(result, iterations=512): ## shape: 1, img_nrows, img_ncol
     return x
 
 def preprocess_wav(wavfile, offset, sample_n):
-    input_rate, wavData = scipy.io.wavfile.read(str(wavfile))
-    assert input_rate == rate
+    wavData = None
+    if useFFmpeg:
+        wavData = readFromFFmpeg(str(wavfile))
+    else:
+        input_rate, wavData = scipy.io.wavfile.read(str(wavfile))
+        assert input_rate == rate
     offset *= rate
     if wavData.ndim>1:
         wavData = wavData[...,0]
