@@ -170,7 +170,7 @@ def gram_matrix(x):
     assert K.ndim(x) == 3
     features = K.batch_flatten(K.permute_dimensions(x, (2, 0, 1))) ## Supports Tensorflow only. "channel last" mode by default
     gram = K.dot(features, K.transpose(features))
-    return gram / img_nrows ## gram / sample_n
+    return gram
 
 # the "style loss" is designed to maintain
 # the style of the reference image in the generated image.
