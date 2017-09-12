@@ -168,7 +168,7 @@ outputs_dict = dict([(layer.name, layer.output) for layer in model.layers])
 
 def gram_matrix(x):
     assert K.ndim(x) == 3
-    feature_n = K.cast(K.shape(x)[-1], K.float32)
+    feature_n = K.cast(K.shape(x)[-1], 'float32')
     features = K.batch_flatten(K.permute_dimensions(x, (2, 0, 1))) ## Supports Tensorflow only. "channel last" mode by default
     gram = K.dot(features, K.transpose(features))
     return gram / feature_n
