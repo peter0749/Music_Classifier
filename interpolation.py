@@ -266,7 +266,7 @@ for i in xrange(iterations):
     eprint('Start of iteration', i)
     start_time = time.time()
     x, min_val, info = fmin_l_bfgs_b(evaluator.loss, x.flatten(),
-                                     fprime=evaluator.grads, maxfun=32)
+                                     fprime=evaluator.grads, maxfun=16)
     eprint('Current loss value:', min_val)
     # save current generated image
     if not result_only:
