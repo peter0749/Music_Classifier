@@ -185,14 +185,14 @@ def style_loss(style, combination):
     assert K.ndim(combination) == 3
     S = gram_matrix(style)
     C = gram_matrix(combination)
-    return K.sum(K.square(S - C)) ## mse
+    return K.sum(K.square(S - C)) ## l2 * 2
 
 # an auxiliary loss function
 # designed to maintain the "content" of the
 # base image in the generated image
 
 
-def content_loss(base, combination): ## mse
+def content_loss(base, combination): ## l2 * 2
     return K.sum(K.square(combination - base))
 
 # combine these loss functions into a single scalar

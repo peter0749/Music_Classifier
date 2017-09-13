@@ -163,7 +163,7 @@ outputs_dict = dict([(layer.name, layer.output) for layer in model.layers])
 
 # the gram matrix of an image tensor (feature-wise outer product)
 
-def content_loss(base, combination): ## mse
+def content_loss(base, combination): ## l2 * 2
     return K.sum(K.square(combination - base))
 
 # combine these loss functions into a single scalar
