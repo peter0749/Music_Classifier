@@ -47,7 +47,7 @@ parser.add_argument('result_prefix', metavar='res_prefix', type=str,
                     help='Prefix for the saved results.')
 parser.add_argument('--iter', type=int, default=10, required=False,
                     help='Number of iterations to run.')
-parser.add_argument('--style_weight', type=float, default=0.0, required=False,
+parser.add_argument('--style_weight', type=float, default=0.1, required=False,
                     help='Style weight. range: [0,1)')
 parser.add_argument('--ar', type=int, default=11025, required=False,
                     help='Sample rate.')
@@ -76,6 +76,7 @@ useFFmpeg = args.ffmpeg
 
 # these are the weights of the different loss components
 style_weight = args.style_weight
+assert style_weight>=0 and style_weight<1
 
 segment_n = 64
 FFT_n = 2048
