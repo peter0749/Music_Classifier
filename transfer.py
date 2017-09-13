@@ -203,8 +203,8 @@ feature_layers = [
         'block1_conv1_gpu2',
         'block2_conv1_gpu1',
         'block2_conv1_gpu2',
-        'block2_conv2_gpu1',
-        'block2_conv2_gpu2',
+        #'block2_conv2_gpu1',
+        #'block2_conv2_gpu2',
         'block3_conv1_gpu1',
         'block3_conv1_gpu2'
         ]
